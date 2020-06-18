@@ -2,6 +2,13 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
+<%
+ 	if((String)session.getAttribute("username")==null){
+ 		String contextPath = request.getContextPath();
+ 		response.sendRedirect(response.encodeRedirectURL(contextPath + "/login.jsp")); 
+ 	}
+ %>
+ 
 <jsp:include page="header.jsp"/>
 
 <!DOCTYPE html>
@@ -9,21 +16,15 @@
 <head>
 	<meta charset="ISO-8859-1">
 	<title>Create Customer</title>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
+	<script src="https://kit.fontawesome.com/136b4fde49.js" crossorigin="anonymous"></script>
 </head>
-
-
 
 <body>
 
-<div class="container">
+<div class="jumbotron bg-transparent">
 
-	<div class="row">
-		<div class="col-sm-2">
-		</div>
-		<div class="col-sm-8" style="background-color:#F0F8FF;">
+	
 		
 		<h2 style="text-align:center;">Transfer Money</h2>
 		
@@ -42,33 +43,35 @@
 		<br/>
 		
 		<form class="form-horizontal" action="AccountManagement" method="POST">
+		<div class="row">
 		
 				<input type="hidden" name="command" value="TRANSFER"/>
 				
-				<div class="form-group">
-				  <label class="control-label col-sm-4" for="sourceAcId">Source Account ID :</label>
-				  <div class="col-sm-8">
+				<div class="form-group col-sm-5">
+				  <label class="control-label " for="sourceAcId">Source Account ID :</label>
+				  <div class="">
 					<input type="number" class="form-control" id="sourceAcId" name="sourceAcId" required>
 				  </div>
 				</div>
 				
+				<div class="form-group col-sm-2 text-center display-4 " style="color:green"><i class="fa fa-arrow-right" aria-hidden="true"></i></div>
 				
-				<div class="form-group">
-				  <label class="control-label col-sm-4" for="targetAcId">Target Account ID :</label>
-				  <div class="col-sm-8">
+				<div class="form-group col-sm-5">
+				  <label class="control-label " for="targetAcId">Target Account ID :</label>
+				  <div class="">
 					<input type="number" class="form-control" id="targetAcId" name="targetAcId" required>
 				  </div>
 				</div>
 				
-				<div class="form-group">
-				  <label class="control-label col-sm-4" for="transferAmount">Transfer Amount :</label>
-				  <div class="col-sm-8">
+				<div class="form-group offset-md-4 col-sm-4">
+				  <label class="control-label " for="transferAmount">Transfer Amount :</label>
+				  <div class="">
 					<input type="number" step=".01" class="form-control" id="transferAmount" name="transferAmount" required>
 				  </div>
 				</div>
 				
-				<div class="form-group">
-					<div class="col-sm-offset-2 col-sm-8 text-center">
+				<div class="form-group col-sm-12">
+					<div class=" text-center">
 					<button type="submit" class="btn btn-success btn-lg">Submit</button>
 					</div>
 				</div>

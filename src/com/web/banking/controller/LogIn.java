@@ -20,12 +20,18 @@ public class LogIn extends HttpServlet {
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
 		HttpSession session = request.getSession();
-		if(BankingDbUtil.verifyLogin(username, password)) {
-			session.setAttribute("username",username);
-			String contextPath = request.getContextPath();
-			response.sendRedirect(response.encodeRedirectURL(contextPath + "/home.jsp")); 
+		String roll=BankingDbUtil.verifyLogin(username, password);
+		if(roll!=null)		
+		{
+					String contextPath = request.getContextPath();
+					response.sendRedirect(response.encodeRedirectURL(contextPath + "/home.jsp")); 
+					session.setAttribute("username",username);
+					session.setAttribute("roll",roll);
+					
+					
 		}
-		else {
+		else 
+		{
 			session.invalidate();
 		    request.setAttribute("error", "Invalid Credentials");
 		    
@@ -33,5 +39,4 @@ public class LogIn extends HttpServlet {
 		    rd.forward(request, response); 
 		} 
 	}
-
 }

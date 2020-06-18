@@ -14,17 +14,20 @@ import java.util.List;
 
 import com.web.banking.connection.DbConnection;
 import com.web.banking.entity.Account;
+import com.web.banking.entity.AccountStatus;
 import com.web.banking.entity.Customer;
+import com.web.banking.entity.CustomerStatus;
 import com.web.banking.entity.TransStatement;
 
 public class BankingDbUtil {
 	
 	
-	public static boolean verifyLogin(String username,String password){
+	public static String verifyLogin(String username,String password){
 		
 		Connection con = null;
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
+		String role = null;
 		
 		try {
 			con = DbConnection.getConnection();
@@ -33,10 +36,8 @@ public class BankingDbUtil {
 			stmt.setString(2,password);
 			rs = stmt.executeQuery();
 			if(rs.next()) {
-				con.close();
-				return true;
+				role = rs.getString("role");
 			}
-			con.close();
 			
 		} 
 		catch (ClassNotFoundException | SQLException e) {
@@ -45,8 +46,8 @@ public class BankingDbUtil {
 		finally {
 			
 			close(con, stmt, rs);
+			return role;
 		}
-		return false;
 	}
 	
 	public static int createCustomer(Customer customer){
@@ -60,15 +61,16 @@ public class BankingDbUtil {
 			
 			con = DbConnection.getConnection();
 			
-			String sql = "Insert into Customer(name,age,address,state,city) values(?,?,?,?,?)";
+			String sql = "Insert into Customer(SSN_Id,name,age,address,state,city) values(?,?,?,?,?,?)";
 			
 			stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			
-			stmt.setString(1,customer.getName());
-			stmt.setInt(2, customer.getAge());
-			stmt.setString(3, customer.getAddress());
-			stmt.setString(4, customer.getState());
-			stmt.setString(5, customer.getCity());
+			stmt.setInt(1, customer.getSSNId());
+			stmt.setString(2,customer.getName());
+			stmt.setInt(3, customer.getAge());
+			stmt.setString(4, customer.getAddress());
+			stmt.setString(5, customer.getState());
+			stmt.setString(6, customer.getCity());
 			
 			stmt.execute();
 			
@@ -78,7 +80,8 @@ public class BankingDbUtil {
 			    genId = rs.getInt(1);
 			}
 			
-			con.close();
+			createCustomerStatus(genId,"Customer is Created");
+			
 			
 			
 		} 
@@ -115,13 +118,14 @@ public class BankingDbUtil {
 			
 			while (rs.next()) {
 				int id = rs.getInt("customer_id");
+				int SSNId = rs.getInt("SSN_Id");
 				String name = rs.getString("name");
 				int age = rs.getInt("age");
 				String address = rs.getString("address");
 				String state = rs.getString("state");
 				String city = rs.getString("city");
 				
-				Customer customer = new Customer(id,name,age,address,state,city);
+				Customer customer = new Customer(id,SSNId,name,age,address,state,city);
 				
 				customers.add(customer);
 				
@@ -171,13 +175,14 @@ public class BankingDbUtil {
 			while (rs.next()) {
 				
 				int id = rs.getInt("customer_id");
+				int SSNId = rs.getInt("SSN_Id");
 				String name = rs.getString("name");
 				int age = rs.getInt("age");
 				String address = rs.getString("address");
 				String state = rs.getString("state");
 				String city = rs.getString("city");
 				
-				Customer customer = new Customer(id,name,age,address,state,city);
+				Customer customer = new Customer(id,SSNId,name,age,address,state,city);
 				customers.add(customer);
 						
 			}
@@ -220,13 +225,62 @@ public class BankingDbUtil {
 			if (rs.next()) {
 				
 				int id = rs.getInt("customer_id");
+				int SSNId = rs.getInt("SSN_Id");
 				String name = rs.getString("name");
 				int age = rs.getInt("age");
 				String address = rs.getString("address");
 				String state = rs.getString("state");
 				String city = rs.getString("city");
 				
-				customer = new Customer(id,name,age,address,state,city);
+				customer = new Customer(id,SSNId,name,age,address,state,city);
+			}
+			
+			
+			
+		}
+		catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally {
+			close(con, stmt, rs);
+		}
+		
+		return customer;
+	}
+    
+    public static Customer getCustomerBySSNId(int SSNId){
+
+		Customer customer = null;
+		
+		Connection con = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		
+		try {
+			
+			
+			con = DbConnection.getConnection();
+			
+			String sql = "select * from Customer where SSN_id=?";
+			
+	
+			stmt = con.prepareStatement(sql);
+			stmt.setInt(1, SSNId);
+			
+
+			rs = stmt.executeQuery();
+			
+			if (rs.next()) {
+				
+				int id = rs.getInt("customer_id");
+				String name = rs.getString("name");
+				int age = rs.getInt("age");
+				String address = rs.getString("address");
+				String state = rs.getString("state");
+				String city = rs.getString("city");
+				
+				customer = new Customer(id,SSNId,name,age,address,state,city);
 			}
 			
 			
@@ -266,6 +320,8 @@ public class BankingDbUtil {
 			stmt.setInt(6, customer.getId());
 			
 			stmt.execute();
+			
+			createCustomerStatus(customer.getId(),"Customer is Updated");
 		}
 		catch (ClassNotFoundException | SQLException e) {
 			// TODO Auto-generated catch block
@@ -287,15 +343,16 @@ public class BankingDbUtil {
 			con = DbConnection.getConnection();
 			
 			
-			con = DbConnection.getConnection();
-			
 			String sql = "delete from Customer where customer_id=?";
 			
 			stmt = con.prepareStatement(sql);
 			
+			
 			stmt.setInt(1, customerId);
 			
 			stmt.execute();
+			
+			createCustomerStatus(customerId,"Customer is Deleted");
 		}
 		catch (ClassNotFoundException | SQLException e) {
 			// TODO Auto-generated catch block
@@ -330,7 +387,9 @@ public class BankingDbUtil {
 			}
 			
 			if(count>0)
-				createStatement(genId,account.getBalance(),"Credited : By Deposit");
+				createStatement(genId,account.getBalance(),"Credited : By Deposit",account.getBalance());
+			
+			createAccountStatus(genId,"Account is Created");
 			
 		} 
 		catch (ClassNotFoundException | SQLException e) {
@@ -356,6 +415,8 @@ public class BankingDbUtil {
 			stmt.setInt(1, accountId);
 			
 			stmt.execute();
+			
+			createAccountStatus(accountId,"Account is Deleted");
 		} 
 		catch (ClassNotFoundException | SQLException e) {
 			// TODO Auto-generated catch block
@@ -488,7 +549,7 @@ public class BankingDbUtil {
 			int count = stmt.executeUpdate();
 			
 			if(count>0) {
-				createStatement(accountId,dAmount,"Credited : By Deposit");
+				createStatement(accountId,dAmount,"Credited : By Deposit",balance);
 			}
 			
 			
@@ -543,7 +604,7 @@ public class BankingDbUtil {
 			int count = stmt.executeUpdate();
 			
 			if(count>0) {
-				createStatement(accountId,wAmount,"Debited : By Withdraw");
+				createStatement(accountId,wAmount,"Debited : By Withdraw",balance);
 			}
 			
 		} catch (ClassNotFoundException | SQLException e) {
@@ -593,7 +654,7 @@ public static String transfer(int sourceAcId, int targetAcId, double tAmount) {
 			stmt.execute();
 			
 			String remark = "Debited : Transfered to "+targetAcId;
-			createStatement(sourceAcId,tAmount,remark);
+			createStatement(sourceAcId,tAmount,remark,balance);
 			
 			stmt = con.prepareStatement("SELECT balance FROM Account Where account_id = ?");
 			
@@ -620,7 +681,7 @@ public static String transfer(int sourceAcId, int targetAcId, double tAmount) {
 			stmt.execute();
 			
 			remark = "Credited : Transfered from "+sourceAcId;
-			createStatement(targetAcId,tAmount,remark);
+			createStatement(targetAcId,tAmount,remark,balance);
 			
 		} catch (ClassNotFoundException | SQLException e) {
 			// TODO Auto-generated catch block
@@ -660,7 +721,8 @@ public static String transfer(int sourceAcId, int targetAcId, double tAmount) {
 				Date date = rs.getDate("date");
 				double amount = rs.getDouble("amount");
 				String remark = rs.getString("remark");
-				TransStatement statement = new TransStatement(id,AccountId,date,amount,remark);
+				double balance = rs.getDouble("balance");
+				TransStatement statement = new TransStatement(id,AccountId,date,amount,remark,balance);
 				statements.add(statement);
 			}
 					
@@ -675,7 +737,132 @@ public static String transfer(int sourceAcId, int targetAcId, double tAmount) {
 		}
 	}
 	
-	public static void createStatement(int accountId,double amount,String remark) {
+	public static void createCustomerStatus(int customerId,String operation) {
+		
+		System.out.println("Customer Status");
+		Connection con = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try {
+			con = DbConnection.getConnection();
+			
+			
+			String sql = "Insert into Customer_Status(date,customer_id,operation) VALUES(?,?,?)";
+			
+			stmt = con.prepareStatement(sql);
+			
+			Calendar calendar = Calendar.getInstance();
+			java.util.Date curDate = calendar.getTime();
+			
+			stmt.setDate(1, new java.sql.Date(curDate.getTime()));
+			stmt.setInt(2, customerId);
+			stmt.setString(3,operation);
+			
+			stmt.executeUpdate();
+			
+			
+			
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally {
+			close(con,stmt,rs);
+		}
+	}
+	
+	public static List<CustomerStatus> getCustomerStatus(){
+		Connection con = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		List<CustomerStatus> list = new ArrayList<CustomerStatus>();
+		
+		try {
+			con = DbConnection.getConnection();
+			stmt = con.createStatement();
+			rs = stmt.executeQuery("SELECT * FROM Customer_Status ORDER BY DATE DESC");
+			
+			while(rs.next()) {
+				int id = rs.getInt("id");
+				Date date = rs.getDate("date");
+				int customerId = rs.getInt("customer_id");
+				String operation = rs.getString("operation");
+				CustomerStatus status = new CustomerStatus(id,date,customerId,operation);
+				list.add(status);
+			}
+					
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally {
+			close(con,stmt,rs);
+			return list;
+		}
+	}
+	
+	public static void createAccountStatus(int accountId,String operation) {
+		
+		Connection con = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try {
+			con = DbConnection.getConnection();
+			String sql = "Insert into Account_Status(Date,account_id,operation) VALUES(?,?,?)";
+			
+			stmt = con.prepareStatement(sql);
+			
+			Calendar calendar = Calendar.getInstance();
+			java.util.Date curDate = calendar.getTime();
+			
+			stmt.setDate(1, new java.sql.Date(curDate.getTime()));
+			stmt.setInt(2, accountId);
+			stmt.setString(3, operation);
+			
+			stmt.execute();
+			
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally {
+			close(con,stmt,rs);
+		}
+	}
+	
+	public static List<AccountStatus> getAccountStatus(){
+		Connection con = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		List<AccountStatus> list = new ArrayList<AccountStatus>();
+		
+		try {
+			con = DbConnection.getConnection();
+			stmt = con.createStatement();
+			rs = stmt.executeQuery("SELECT * FROM Account_Status ORDER BY DATE DESC");
+			
+			while(rs.next()) {
+				int id = rs.getInt("id");
+				Date date = rs.getDate("date");
+				int accountId = rs.getInt("account_id");
+				String operation = rs.getString("operation");
+				AccountStatus status = new AccountStatus(id,date,accountId,operation);
+				list.add(status);
+			}
+					
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally {
+			close(con,stmt,rs);
+			return list;
+		}
+	}
+	
+	public static void createStatement(int accountId,double amount,String remark,double balance) {
 		Connection con = null;
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
@@ -683,7 +870,7 @@ public static String transfer(int sourceAcId, int targetAcId, double tAmount) {
 		try {
 			con = DbConnection.getConnection();
 			
-			String sql = "INSERT INTO Statement(account_id,date,amount,remark) Values(?, ?, ?, ?)";
+			String sql = "INSERT INTO Statement(account_id,date,amount,remark,balance) Values(?, ?, ?, ?, ?)";
 			
 			stmt = con.prepareStatement(sql);
 			
@@ -698,6 +885,8 @@ public static String transfer(int sourceAcId, int targetAcId, double tAmount) {
 			
 			stmt.setString(4, remark);
 			
+			stmt.setDouble(5,balance);
+			
 			stmt.executeUpdate();
 			
 			
@@ -705,6 +894,9 @@ public static String transfer(int sourceAcId, int targetAcId, double tAmount) {
 		} catch (ClassNotFoundException | SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+		finally {
+			close(con,stmt,rs);
 		}
 	}
 	

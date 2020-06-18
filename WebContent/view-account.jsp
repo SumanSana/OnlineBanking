@@ -1,7 +1,16 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+ <%
+ 	if((String)session.getAttribute("username")==null){
+ 		String contextPath = request.getContextPath();
+ 		response.sendRedirect(response.encodeRedirectURL(contextPath + "/login.jsp")); 
+ 	}
+ %>
+
 <jsp:include page="header.jsp"/>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,24 +18,32 @@
 <title>Insert title here</title>
 </head>
 <body>
-<div class="container">
-	<div class="content">
-		<h2>Customer ID : ${The_Customer.id }</h2>
-
+<div class="jumbotron bg-transparent">
+<table class="table table-stripped table-bordered content">
 		<c:url var="details" value="CustomerManagement">
 			<c:param name="command" value="DETAILS" />
 			<c:param name="customerId" value="${The_Customer.id}" />
 		</c:url>
-		<a href="${details }"><h2>Name : ${The_Customer.name }</h2></a>
-		<hr>
-		<h2>Account Details :</h2>
-		<br/>
-		<h2>Account ID : ${The_Account.accountId }</h2>
-		<br/>
-		<h2>Account Type : ${The_Account.accountType }</h2>
-		<br/>
-		<h2>Balance : ${The_Account.balance }</h2>
-	</div>
+<thead class="thead-dark">
+<tr>
+<td>Customer ID</td>
+<td>Name</td>
+<td>Account ID</td>
+<td>Account Type</td>
+<td>Balance</td>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>${The_Customer.id }</td>
+<td>${The_Customer.name }</td>
+<td>${The_Account.accountId }</td>
+<td>${The_Account.accountType }</td>
+<td>${The_Account.balance }</td>
+</tr>
+</tbody>
+</table>
 </div>
+<jsp:include page="footer.jsp"/>
 </body>
 </html>

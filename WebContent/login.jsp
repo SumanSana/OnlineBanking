@@ -152,12 +152,12 @@ body {
             <form class="form-signin" action="LogIn" method="POST">
               <input type="hidden" name="command" value="LOGIN"/>
               <div class="form-label-group">
-                <input type="text" id="inputUsername" class="form-control" name="username" placeholder="Username" required autofocus>
+                <input type="text" id="inputUsername" class="form-control" pattern=".{8,}" required title="The user ID should have a minimum of 8 characters" name="username" placeholder="Username" required autofocus>
                 <label for="inputUsernaame">Username</label>
               </div>
 
               <div class="form-label-group">
-                <input type="password" id="inputPassword" class="form-control" name="password" placeholder="Password" required>
+                <input type="password" id="inputPassword" class="form-control" title="Password must be 8 characters including 1 uppercase letter, 1 lowercase letter and numeric characters" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{10,}" name="password" placeholder="Password" required>
                 <label for="inputPassword">Password</label>
               </div>
               

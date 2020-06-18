@@ -78,21 +78,35 @@ public class CustomerManagement extends HttpServlet {
 	}
 
 	private void createCustomer(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		int SSNId = Integer.parseInt(request.getParameter("SSNId"));
+		
+		String contextPath = request.getContextPath();
+		
+		HttpSession session = request.getSession();
+		
+		Customer customer = BankingDbUtil.getCustomerBySSNId(SSNId);
+		
+		if(customer!=null) {
+			request.setAttribute("msg","This SSN ID is already associated with a Customer");
+			
+			RequestDispatcher rd = request.getRequestDispatcher("/create-customer-form.jsp");
+			rd.forward(request, response);
+		}
 		String name = request.getParameter("name");
 		int age = Integer.parseInt(request.getParameter("age"));
 		String address = request.getParameter("address");
 		String state = request.getParameter("state");
 		String city = request.getParameter("city");
 		
-		Customer customer = new Customer(name,age,address,state,city);
+		
+		customer = new Customer(SSNId,name,age,address,state,city);
 		
 		int id = BankingDbUtil.createCustomer(customer);
 		
-		HttpSession session = request.getSession();
+		
 		
 		session.setAttribute("customerId",id);
-		
-		String contextPath = request.getContextPath();
 		
 		response.sendRedirect(response.encodeRedirectUrl(contextPath+"/create-customer-form.jsp"));
 		
@@ -154,13 +168,14 @@ public class CustomerManagement extends HttpServlet {
 	private void updateCustomer(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 		int id = Integer.parseInt(request.getParameter("customerId"));
+		int SSNId = Integer.parseInt(request.getParameter("customerSSNId"));
 		String name = request.getParameter("name");
 		int age = Integer.parseInt(request.getParameter("age"));
 		String address = request.getParameter("address");
 		String state = request.getParameter("state");
 		String city = request.getParameter("city");
 		
-		Customer customer = new Customer(id,name,age,address,state,city);
+		Customer customer = new Customer(id,SSNId,name,age,address,state,city);
 		
 		BankingDbUtil.updateCustomer(customer);
 		

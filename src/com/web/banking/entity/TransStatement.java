@@ -8,22 +8,25 @@ public class TransStatement {
 	private Date date;
 	private double amount;
 	private String remark;
+	private double balance;
 	
-	public TransStatement(int id, int account_id, Date date, double amount, String remark) {
+	public TransStatement(int id, int account_id, Date date, double amount, String remark, double balance) {
 		super();
 		this.id = id;
 		this.account_id = account_id;
 		this.date = date;
 		this.amount = amount;
 		this.remark = remark;
+		this.balance = balance;
 	}
 
-	public TransStatement(int account_id, Date date, double amount, String remark) {
+	public TransStatement(int account_id, Date date, double amount, String remark, double balance) {
 		super();
 		this.account_id = account_id;
 		this.date = date;
 		this.amount = amount;
 		this.remark = remark;
+		this.balance = balance;
 	}
 
 	public int getId() {
@@ -58,19 +61,28 @@ public class TransStatement {
 		this.amount = amount;
 	}
 
-	public String getremark() {
+	public String getRemark() {
 		return remark;
 	}
 
-	public void setremark(String remark) {
+	public void setRemark(String remark) {
 		this.remark = remark;
+	}
+
+	public double getBalance() {
+		return balance;
+	}
+
+	public void setBalance(double balance) {
+		this.balance = balance;
 	}
 
 	@Override
 	public String toString() {
-		return "Statement [id=" + id + ", account_id=" + account_id + ", date=" + date + ", amount=" + amount
-				+ ", remark=" + remark + "]";
+		return "TransStatement [id=" + id + ", account_id=" + account_id + ", date=" + date + ", amount=" + amount
+				+ ", remark=" + remark + ", balance=" + balance + "]";
 	}
+	
 	
 	
 	

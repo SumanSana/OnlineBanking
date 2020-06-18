@@ -1,0 +1,62 @@
+create database if not exists onlinebanking;
+use onlinebanking;
+
+
+CREATE TABLE User(
+Username VARCHAR(45) PRIMARY KEY,
+Password VARCHAR(45) NOT NULL,
+Role VARCHAR(45) NOT NULL
+);
+
+
+
+INSERT INTO USER VALUES('Suman@Sana','Sana-12345','exe');
+INSERT INTO USER VALUES('Subha@Gamer','Subha@Sohail','teller');
+
+
+CREATE TABLE Customer(
+Customer_Id INT NOT NULL AUTO_INCREMENT,
+SSN_Id INT NOT NULL UNIQUE,
+Name VARCHAR(45) NOT NULL,
+Age INT NOT NULL,
+Address VARCHAR(120) NOT NULL,
+State VARCHAR(45) NOT NULL,
+City VARCHAR(45) NOT NULL,
+Primary Key(Customer_Id)
+);
+CREATE TABLE Customer_Status(
+	Id INT NOT NULL AUTO_INCREMENT,
+    Date DATE NOT NULL,
+	Customer_ID INT NOT NULL,
+    Operation VARCHAR(45) NOT NULL,
+    PRIMARY KEY(Id)
+);
+
+CREATE TABLE Account(
+Account_Id INT NOT NULL AUTO_INCREMENT,
+Customer_Id INT NOT NULL,
+Account_Type VARCHAR(45) NOT NULL,
+balance DOUBLE NOT NULL DEFAULT 0,
+PRIMARY KEY(Account_Id),
+FOREIGN KEY(Customer_Id) REFERENCES Customer(Customer_Id) ON DELETE CASCADE
+);
+
+CREATE TABLE Account_Status(
+	Id INT NOT NULL AUTO_INCREMENT,
+    Date DATE NOT NULL,
+	Account_ID INT NOT NULL,
+    Operation VARCHAR(45) NOT NULL,
+    PRIMARY KEY(Id)
+);
+
+CREATE TABLE Statement(
+id INT NOT NULL AUTO_INCREMENT,
+account_id INT NOT NULL,
+date Date NOT NULL,
+amount DOUBLE NOT NULL,
+remark VARCHAR(200) NOT NULL,
+balance DOUBLE NOT NULL,
+PRIMARY KEY(id),
+FOREIGN KEY(account_id) REFERENCES Account(account_id) ON DELETE CASCADE
+);
+

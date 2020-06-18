@@ -3,24 +3,27 @@ package com.web.banking.entity;
 public class Customer {
 	
 	private int id;
+	private int SSNId;
 	private String name;
 	private int age;
 	private String address;
 	private String state;
 	private String city;
 	
-	public Customer(int id, String name, int age, String address, String state, String city) {
+	public Customer(int id, int sSNId, String name, int age, String address, String state, String city) {
 		super();
 		this.id = id;
+		SSNId = sSNId;
 		this.name = name;
 		this.age = age;
 		this.address = address;
 		this.state = state;
 		this.city = city;
 	}
-	
-	public Customer(String name, int age, String address, String state, String city) {
+
+	public Customer(int sSNId, String name, int age, String address, String state, String city) {
 		super();
+		SSNId = sSNId;
 		this.name = name;
 		this.age = age;
 		this.address = address;
@@ -34,6 +37,14 @@ public class Customer {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public int getSSNId() {
+		return SSNId;
+	}
+
+	public void setSSNId(int sSNId) {
+		SSNId = sSNId;
 	}
 
 	public String getName() {
@@ -76,10 +87,9 @@ public class Customer {
 		this.city = city;
 	}
 
-	
 	@Override
 	public String toString() {
-		return "Customer [id=" + id + ", name=" + name + ", age=" + age + ", address=" + address
+		return "Customer [id=" + id + ", SSNId=" + SSNId + ", name=" + name + ", age=" + age + ", address=" + address
 				+ ", state=" + state + ", city=" + city + "]";
 	}
 	

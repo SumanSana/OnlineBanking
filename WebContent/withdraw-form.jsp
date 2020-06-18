@@ -1,7 +1,13 @@
-
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
+ <%
+ 	if((String)session.getAttribute("username")==null){
+ 		String contextPath = request.getContextPath();
+ 		response.sendRedirect(response.encodeRedirectURL(contextPath + "/login.jsp")); 
+ 	}
+ %>
+ 
 <jsp:include page="header.jsp"/>
 
 <!DOCTYPE html>
@@ -9,21 +15,19 @@
 <head>
 	<meta charset="ISO-8859-1">
 	<title>Create Customer</title>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </head>
 
-
-
 <body>
+<% response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); 
+	if(session.getAttribute("username")==null){
+		response.sendRedirect("login.jsp");
+	}
+%>
+<div class="jumbotron bg-transparent">
 
-<div class="container">
+	
+	
 
-	<div class="row">
-		<div class="col-sm-2">
-		</div>
-		<div class="col-sm-8" style="background-color:#F0F8FF;">
 		
 		<h2 style="text-align:center;">Withdraw Money</h2>
 		
@@ -42,20 +46,20 @@
 		<br/>
 		
 		<form class="form-horizontal" action="AccountManagement" method="POST" >
-		
+		<div class="row">
 				<input type="hidden" name="command" value="WITHDRAW"/>
 				
-				<div class="form-group">
-				  <label class="control-label col-sm-4" for="accountId">Account ID :</label>
-				  <div class="col-sm-8">
+				<div class="form-group col-sm-4">
+				  <label class="control-label " for="accountId">Account ID :</label>
+				  <div class="">
 					<input type="number" class="form-control" id="accountId" name="accountId" required>
 				  </div>
 				</div>
 				
 				
-				<div class="form-group">
-				  <label class="control-label col-sm-4" for="accountType">Account Type :</label>
-				  <div class="col-sm-8">
+				<div class="form-group col-sm-4">
+				  <label class="control-label " for="accountType">Account Type :</label>
+				  <div class="">
 					<select class="form-control" id="accountType" name="accountType">
 						<option value="Savings">Savings</option>
 						<option value="Current">Current</option>
@@ -64,22 +68,21 @@
 				  </div>
 				</div>
 				
-				<div class="form-group">
-				  <label class="control-label col-sm-4" for="withdrawAmount">Withdraw Amount :</label>
-				  <div class="col-sm-8">
+				<div class="form-group col-sm-4">
+				  <label class="control-label " for="withdrawAmount">Withdraw Amount :</label>
+				  <div class="">
 					<input type="number" step=".01" class="form-control" id="withdrawAmount" name="withdrawAmount" required>
 				  </div>
 				</div>
 				
-				<div class="form-group">
-					<div class="col-sm-offset-2 col-sm-8 text-center">
+				<div class="form-group col-sm-12">
+					<div class="  text-center">
 					<button type="submit" class="btn btn-success btn-lg">Submit</button>
 					</div>
-				</div>
+				</div></div>
 			</form>
 		</div>
-		<div class="col-sm-2">
-		</div>
+		
 	</div>
 </div>
 </body>

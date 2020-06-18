@@ -23,6 +23,13 @@ import com.web.banking.entity.TransStatement;
 public class AccountManagement extends HttpServlet {
 	private static final long serialVersionUID = 1L; 
 	
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		String contextPath = request.getContextPath();
+ 		response.sendRedirect(response.encodeRedirectURL(contextPath + "/login.jsp")); 
+		
+	}
+	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String command = request.getParameter("command");
 		
@@ -76,7 +83,7 @@ public class AccountManagement extends HttpServlet {
 			
 			int id = BankingDbUtil.createAccount(account);
 			
-			session.setAttribute("msg","Success : Account is crated !!");
+			session.setAttribute("msg","Success : Account is created !!");
 			session.setAttribute("accountId", id);
 		}
 		else
@@ -172,15 +179,24 @@ public class AccountManagement extends HttpServlet {
 		int sourceAcId = Integer.parseInt(request.getParameter("sourceAcId"));
 		int targetAcId = Integer.parseInt(request.getParameter("targetAcId"));
 		
+		HttpSession session =request.getSession();
+		
+		String contextPath = request.getContextPath();
+		
+		if(sourceAcId==targetAcId) {
+			
+			session.setAttribute("msg","Failure: Source account Id can't be equal to target Account Id !");
+			RequestDispatcher rd = request.getRequestDispatcher("/transfer-form.jsp");
+			rd.forward(request,response);
+			
+		}
 		double tAmount = Double.parseDouble(request.getParameter("transferAmount"));
 		
 		String msg = BankingDbUtil.transfer(sourceAcId,targetAcId,tAmount);
 		
-		HttpSession session =request.getSession();
 		
 		session.setAttribute("msg",msg);
 		
-		String contextPath = request.getContextPath();
 	    response.sendRedirect(response.encodeRedirectUrl(contextPath+"/transfer-form.jsp"));
 		
 	}
